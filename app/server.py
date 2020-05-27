@@ -10,7 +10,7 @@ from starlette.responses import HTMLResponse, JSONResponse
 from starlette.staticfiles import StaticFiles
 
 export_file_url = 'https://drive.google.com/open?id=14ixz4uceK8tBfQGey-zPqqQ5cQ44vmuc'
-export_file_name = 'export.pkl'
+export_file_name = 'vision.pkl'
 
 
 path = Path(__file__).parent
