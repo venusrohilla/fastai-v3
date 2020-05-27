@@ -12,7 +12,7 @@ from starlette.staticfiles import StaticFiles
 export_file_url = 'https://www.dropbox.com/s/6bgq8t6yextloqp/export.pkl?raw=1'
 export_file_name = 'export.pkl'
 
-classes = ['black', 'grizzly', 'teddys']
+
 path = Path(__file__).parent
 
 app = Starlette()
@@ -31,16 +31,16 @@ async def download_file(url, dest):
 
 async def setup_learner():
     await download_file(export_file_url, path / export_file_name)
-    try:
-        learn = load_learner(path, export_file_name)
-        return learn
-    except RuntimeError as e:
-        if len(e.args) > 0 and 'CPU-only machine' in e.args[0]:
-            print(e)
-            message = "\n\nThis model was trained with an old version of fastai and will not work in a CPU environment.\n\nPlease update the fastai library in your training environment and export your model again.\n\nSee instructions for 'Returning to work' at https://course.fast.ai."
-            raise RuntimeError(message)
-        else:
-            raise
+    dblock=DataBlock(blocks=[ImageBlock,RegressionBlock()],
+get_items=get_image_files,
+splitter=RandomSplitter(),
+get_y=get_y,
+item_tfms=Resize(240, method='squish'),
+batch_tfms=[*aug_transforms(size=224, max_warp=0, max_rotate=7.0, max_zoom=1.0)]
+)
+    learn=cnn_learner(dls,resnet18,loss_func=MSELossFlat(), y_range=(10.0,70.0))
+    learn = load_learner(export_file_name)
+    return learn
 
 
 loop = asyncio.get_event_loop()
