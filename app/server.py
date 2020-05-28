@@ -9,8 +9,8 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import HTMLResponse, JSONResponse
 from starlette.staticfiles import StaticFiles
 
-model_file_url = 'https://drive.google.com/open?id=1QEMHUTQe0NynEABajGGeTnU3JD992N3Z'
-model_file_name = 'vision5.pkl'
+model_file_url = 'https://drive.google.com/open?id=1mEr3x5va4hgYz8Lc_lU_tFbV1SZ6_in8'
+model_file_name = 'export(1).pkl'
 
 
 path = Path(__file__).parent
