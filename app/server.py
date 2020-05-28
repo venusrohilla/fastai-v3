@@ -9,8 +9,8 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import HTMLResponse, JSONResponse
 from starlette.staticfiles import StaticFiles
 
-model_file_url = 'https://drive.google.com/open?id=1MGBnt3_Z6DtbB6hgL_ZY3rdMX4BsXiNt'
-model_file_name = 'vision3.pth'
+model_file_url = 'https://drive.google.com/open?id=1QEMHUTQe0NynEABajGGeTnU3JD992N3Z'
+model_file_name = 'vision5.pkl'
 
 
 path = Path(__file__).parent
@@ -31,16 +31,17 @@ async def download_file(url, dest):
 
 async def setup_learner():
     await download_file(model_file_url, path/'models'/f'{model_file_name}')
-    try:
-        learn = load_learner(path, model_file_name)
-        return learn
-    except RuntimeError as e:
-        if len(e.args) > 0 and 'CPU-only machine' in e.args[0]:
-            print(e)
-            message = "\n\nThis model was trained with an old version of fastai and will not work in a CPU environment.\n\nPlease update the fastai library in your training environment and export your model again.\n\nSee instructions for 'Returning to work' at https://course.fast.ai."
-            raise RuntimeError(message)
-        else:
-            raise
+    dblock=DataBlock(blocks=[ImageBlock,RegressionBlock()],
+get_items=get_image_files,
+splitter=RandomSplitter(),
+get_y=get_y,
+item_tfms=Resize(240, method='squish'),
+batch_tfms=[*aug_transforms(size=224, max_warp=0, max_rotate=7.0, max_zoom=1.0)]
+)
+    dls=dblock.dataloaders(path,bs=64,verbose=True)
+    learn2 = cnn_learner(dls,resnet18,loss_func=MSELossFlat())
+    learn2.load(model_file_name)
+    return learn2
 
 
 loop = asyncio.get_event_loop()
@@ -59,8 +60,8 @@ async def homepage(request):
 async def analyze(request):
     img_data = await request.form()
     img_bytes = await (img_data['file'].read())
-    img = open_image(BytesIO(img_bytes))
-    prediction = learn.predict(img)
+    img = BytesIO(img_bytes)
+    prediction = learn2.predict(img)
     return JSONResponse({'result': int(prediction)})
 
 
