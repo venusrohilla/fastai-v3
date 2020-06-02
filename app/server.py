@@ -9,7 +9,7 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import HTMLResponse, JSONResponse
 from starlette.staticfiles import StaticFiles
 
-model_file_url = 'https://drive.google.com/file/d/18XQxbivaaz6LZIljip69H2pWhFM86Zwa/view?usp=sharing'
+model_file_url = 'https://drive.google.com/file/d/1vYSkntgXOxb5BEV_JwjRvu1FGkCPzg4H/view?usp=sharing'
 model_file_name = 'Vision7.pkl'
 
 
