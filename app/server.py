@@ -9,8 +9,8 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import HTMLResponse, JSONResponse
 from starlette.staticfiles import StaticFiles
 
-model_file_url = 'https://drive.google.com/open?id=1QEMHUTQe0NynEABajGGeTnU3JD992N3Z'
-model_file_name = 'vision5.pkl'
+model_file_url = 'https://drive.google.com/file/d/18XQxbivaaz6LZIljip69H2pWhFM86Zwa/view?usp=sharing'
+model_file_name = 'Vision7.pkl'
 
 
 path = Path(__file__).parent
@@ -30,17 +30,11 @@ async def download_file(url, dest):
 
 
 async def setup_learner():
-    await download_file(model_file_url, path/'models'/f'{model_file_name}')
-    try:
-        learn = load_learner(path, model_file_name)
+    async def setup_learner():
+        await download_file(model_file_url, path/'models'/f'{model_file_name}')
+        learn = load_learner(model_file_name)
         return learn
-    except RuntimeError as e:
-        if len(e.args) > 0 and 'CPU-only machine' in e.args[0]:
-            print(e)
-            message = "\n\nThis model was trained with an old version of fastai and will not work in a CPU environment.\n\nPlease update the fastai library in your training environment and export your model again.\n\nSee instructions for 'Returning to work' at https://course.fast.ai."
-            raise RuntimeError(message)
-        else:
-            raise
+
 
 
 loop = asyncio.get_event_loop()
@@ -57,11 +51,11 @@ async def homepage(request):
 
 @app.route('/analyze', methods=['POST'])
 async def analyze(request):
-    img_data = await request.form()
-    img_bytes = await (img_data['file'].read())
-    img = BytesIO(img_bytes)
-    prediction = learn.predict(img)
-    return JSONResponse({'result': int(prediction)})
+    data = await request.form()
+    img_bytes = await (data['file'].read())
+    img = open_image(BytesIO(img_bytes))
+    **prediction = learn.predict(img)[1] * n_const**
+    return JSONResponse({'result': str(prediction)})
 
 
 if __name__ == '__main__':
