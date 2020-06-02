@@ -30,10 +30,9 @@ async def download_file(url, dest):
 
 
 async def setup_learner():
-    async def setup_learner():
-        await download_file(model_file_url, path/'models'/f'{model_file_name}')
-        learn = load_learner(model_file_name)
-        return learn
+    await download_file(model_file_url, path/'models'/f'{model_file_name}')
+    learn = load_learner(path/'models', f'{model_file_name}')
+    return learn
 
 
 
@@ -55,7 +54,7 @@ async def analyze(request):
     img_bytes = await (data['file'].read())
     img = open_image(BytesIO(img_bytes))
     prediction = learn.predict(img)[1] 
-    return JSONResponse({'result': str(prediction)})
+    return JSONResponse({'result': int(prediction)})
 
 
 if __name__ == '__main__':
